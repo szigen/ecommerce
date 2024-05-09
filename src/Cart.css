@@ -1,0 +1,26 @@
+.cart {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+  }
+  
+  .cart h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .cart ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .cart li {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  .cart h3 {
+    margin-top: 2rem;
+  }
+  

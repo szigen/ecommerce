@@ -1,0 +1,48 @@
+.product-item {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    text-align: left;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #d0d0d0; /* Varsayılan arka plan rengi */
+    transition: background-color 0.3s ease;
+  }
+
+  .product-item.electronic {
+    background-color: #e0f7fa; /* Elektronik kategorisi için */
+  }
+  
+  .product-item.fashion {
+    background-color: #fce4ec; /* Moda kategorisi için */
+  }
+  
+  .product-item.home {
+    background-color: #f1f8e9; /* Ev & Yaşam kategorisi için */
+  }
+  
+  .product-item:hover {
+    background-color: #5d5d5d; /* Hover efekti */
+  }
+  
+  .product-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .add-to-cart-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+  }
+  
+  .add-to-cart-button:hover {
+    background-color: #218838;
+  }
+  
