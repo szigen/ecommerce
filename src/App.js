@@ -10,6 +10,7 @@ function App() {
   const [sortOrder, setSortOrder] = useState('asc'); // Sıralama durumu
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [cart, setCart] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const categories = ['Tümü', 'Elektronik', 'Moda', 'Ev & Yaşam'];
 
@@ -22,6 +23,10 @@ function App() {
 
     filtered = filtered.filter(
       (product) => product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+
+    filtered = filtered.filter(
+      (product) => product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Sıralama işlemi
@@ -45,9 +50,13 @@ function App() {
     setSortOrder(event.target.value);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   useEffect(() => {
     filterProducts();
-  }, [category, priceRange, sortOrder]);
+  }, [category, priceRange, sortOrder, searchTerm]);
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -105,6 +114,13 @@ function App() {
           <option value="asc">Artan Fiyat</option>
           <option value="desc">Azalan Fiyat</option>
         </select>
+        
+        <input
+          type="text"
+          placeholder="Ürün ara..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
 
         <DropdownCart
           cart={cart}

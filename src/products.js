@@ -15,7 +15,7 @@ const products = [
     },
     {
       id: 3,
-      name: 'Ürün 3',
+      name: 'Playstation',
       category: 'Elektronik',
       price: 250,
       image: 'https://boltagency.ca/content/images/2020/03/placeholder-images-product-1_large.png', // Örnek resim URL'si
