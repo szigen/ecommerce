@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import products from './products';
 import ProductList from './ProductList';
 import DropdownCart from './DropdownCart';
@@ -8,13 +8,12 @@ function App() {
   const [category, setCategory] = useState('Tümü');
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [sortOrder, setSortOrder] = useState('asc'); // Sıralama durumu
-  const [filteredProducts, setFilteredProducts] = useState(products);
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   const categories = ['Tümü', 'Elektronik', 'Moda', 'Ev & Yaşam'];
 
-  const filterProducts = () => {
+  const filterProducts = useCallback(() => {
     let filtered = products;
 
     if (category !== 'Tümü') {
@@ -34,8 +33,8 @@ function App() {
       return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
     });
 
-    setFilteredProducts(filtered);
-  };
+    return filtered;
+  }, [category, priceRange, sortOrder, searchTerm]);
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
@@ -54,11 +53,11 @@ function App() {
     setSearchTerm(event.target.value);
   };
 
-  useEffect(() => {
-    filterProducts();
-  }, [category, priceRange, sortOrder, searchTerm]);
+  const addToCart = (event) => {
+    const productId = event.currentTarget.getAttribute('data-id');
+    const product = products.find((prod) => prod.id === parseInt(productId, 10));
+    if (!product) return;
 
-  const addToCart = (product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
 
@@ -129,7 +128,7 @@ function App() {
         />
       </div>
 
-      <ProductList products={filteredProducts} addToCart={addToCart} />
+      <ProductList products={filterProducts()} addToCart={addToCart} />
     </div>
   );
 }

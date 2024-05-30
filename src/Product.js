@@ -8,7 +8,7 @@ function Product({ product, addToCart }) {
       <h3>{product.name}</h3>
       <p>Kategori: {product.category}</p>
       <p>Fiyat: {product.price} TL</p>
-      <button onClick={() => addToCart(product)} className="add-to-cart-button">
+      <button data-id = {product.id} onClick={addToCart} className="add-to-cart-button">
         Sepete Ekle
       </button>
     </li>
