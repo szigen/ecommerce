@@ -1,47 +1,70 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import products from './products';
-import ProductList from './ProductList';
-import DropdownCart from './DropdownCart';
-import './App.css';
+import React, { useState, useEffect, useCallback } from "react";
+import ProductList from "./ProductList";
+import DropdownCart from "./DropdownCart";
+import "./App.css";
 
 function App() {
-  const [category, setCategory] = useState('Tümü');
+  const [category, setCategory] = useState("Tümü");
   const [priceRange, setPriceRange] = useState([0, 500]);
-  const [sortOrder, setSortOrder] = useState('asc'); // Sıralama durumu
+  const [sortOrder, setSortOrder] = useState("asc");
   const [cart, setCart] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = ['Tümü', 'Elektronik', 'Moda', 'Ev & Yaşam'];
+  const categories = ["Tümü", "Elektronik", "Moda", "Ev & Yaşam"];
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        await sleep(1000);
+        const response = await fetch("/posts");
+        const data = await response.json();
+        setProducts(data.products);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filterProducts = useCallback(() => {
     let filtered = products;
 
-    if (category !== 'Tümü') {
+    if (category !== "Tümü") {
       filtered = filtered.filter((product) => product.category === category);
     }
 
     filtered = filtered.filter(
-      (product) => product.price >= priceRange[0] && product.price <= priceRange[1]
+      (product) =>
+        product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
-    filtered = filtered.filter(
-      (product) => product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    filtered = filtered.filter((product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Sıralama işlemi
     filtered = filtered.sort((a, b) => {
-      return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+      return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
     });
 
     return filtered;
-  }, [category, priceRange, sortOrder, searchTerm]);
+  }, [category, priceRange, sortOrder, searchTerm, products]);
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
   };
 
   const handlePriceChange = (event) => {
-    const range = event.target.value.split('-').map(Number);
+    const range = event.target.value.split("-").map(Number);
     setPriceRange(range);
   };
 
@@ -54,8 +77,10 @@ function App() {
   };
 
   const addToCart = (event) => {
-    const productId = event.currentTarget.getAttribute('data-id');
-    const product = products.find((prod) => prod.id === parseInt(productId, 10));
+    const productId = event.currentTarget.getAttribute("data-id");
+    const product = products.find(
+      (prod) => prod.id === parseInt(productId, 10)
+    );
     if (!product) return;
 
     setCart((prevCart) => {
@@ -113,7 +138,7 @@ function App() {
           <option value="asc">Artan Fiyat</option>
           <option value="desc">Azalan Fiyat</option>
         </select>
-        
+
         <input
           type="text"
           placeholder="Ürün ara..."
@@ -128,7 +153,11 @@ function App() {
         />
       </div>
 
-      <ProductList products={filterProducts()} addToCart={addToCart} />
+      {isLoading ? (
+        <p>Loading products...</p>
+      ) : (
+        <ProductList products={filterProducts()} addToCart={addToCart} />
+      )}
     </div>
   );
 }
