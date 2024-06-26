@@ -3,6 +3,7 @@ import products from "../products";
 
 export const handlers = [
   http.get("/posts", () => {
+    console.log('Captured a "GET /posts" request');
     return HttpResponse.json({ products });
   }),
   http.post("/posts", () => {
