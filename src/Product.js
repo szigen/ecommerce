@@ -1,19 +1,7 @@
 import React from "react";
 import "./Product.css";
-import { http } from "msw";
-import axios from "axios";
 
 function Product({ product, addToCart }) {
-  const test1 = () => {
-    try{
-      axios.get("/posts");
-    }
-    catch(err){
-
-    }
-    
-  };
-
   return (
     <li className="product-item">
       <img src={product.image} alt={product.name} className="product-image" />
@@ -27,7 +15,6 @@ function Product({ product, addToCart }) {
       >
         Sepete Ekle
       </button>
-      <button onClick={test1}>Test</button>
     </li>
   );
 }

@@ -12,10 +12,7 @@ async function enableMocking() {
   const { worker } = await import("./mocks/browser");
   await worker.start({
     serviceWorker: {
-      url: "/ecommerce/mockServiceWorker.js",
-      options: {
-        scope: "/ecommerce",
-      },
+      url: "/mockServiceWorker.js",
     },
   });
 }
