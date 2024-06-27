@@ -1,20 +1,20 @@
 import React from "react";
-import "./Product.css";
+import Button from "./components/Button";
 
 function Product({ product, addToCart }) {
   return (
-    <li className="product-item">
-      <img src={product.image} alt={product.name} className="product-image" />
-      <h3>{product.name}</h3>
-      <p>Kategori: {product.category}</p>
-      <p>Fiyat: {product.price} TL</p>
-      <button
-        data-id={product.id}
-        onClick={addToCart}
-        className="add-to-cart-button"
-      >
+    <li className="h-96 border border-gray-300 bg-neutral-300 p-4 text-left rounded-lg flex flex-col items-center transition-colors duration-300 hover:bg-neutral-600">
+      <img
+        src={product.image}
+        alt={product.name}
+        className="max-w-full rounded mb-4"
+      />
+      <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+      <p className="text-black-900">Kategori: {product.category}</p>
+      <p className="text-black-900 mb-4">Fiyat: {product.price} TL</p>
+      <Button data-id={product.id} onClick={addToCart} success rounded>
         Sepete Ekle
-      </button>
+      </Button>
     </li>
   );
 }

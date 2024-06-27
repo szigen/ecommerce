@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ProductList from "./ProductList";
 import DropdownCart from "./DropdownCart";
-import "./App.css";
 
 function App() {
   const [category, setCategory] = useState("Tümü");
@@ -22,7 +21,7 @@ function App() {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        await sleep(1000);
+        await sleep(1);
         const response = await fetch("/posts");
         const data = await response.json();
         setProducts(data.products);
@@ -115,37 +114,39 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>E-Ticaret Sitesi</h1>
+    <div className="App p-4 items-center">
+      <h1 className="text-3xl font-bold mb-4">E-Ticaret Sitesi</h1>
 
-      <div className="filters">
-        <select value={category} onChange={handleCategoryChange}>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+      <div className="filters flex flex-wrap gap-4 mb-4 items-center">
+        <div className="flex-grow">
+          <select value={category} onChange={handleCategoryChange} className="p-2 border rounded">
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
 
-        <select onChange={handlePriceChange}>
-          <option value="0-500">Tümü</option>
-          <option value="0-100">0 - 100 TL</option>
-          <option value="100-200">100 - 200 TL</option>
-          <option value="200-500">200 - 500 TL</option>
-        </select>
+          <select onChange={handlePriceChange} className="p-2 border rounded ml-2">
+            <option value="0-500">Tümü</option>
+            <option value="0-100">0 - 100 TL</option>
+            <option value="100-200">100 - 200 TL</option>
+            <option value="200-500">200 - 500 TL</option>
+          </select>
 
-        <select value={sortOrder} onChange={handleSortOrderChange}>
-          <option value="asc">Artan Fiyat</option>
-          <option value="desc">Azalan Fiyat</option>
-        </select>
+          <select value={sortOrder} onChange={handleSortOrderChange} className="p-2 border rounded ml-2">
+            <option value="asc">Artan Fiyat</option>
+            <option value="desc">Azalan Fiyat</option>
+          </select>
 
-        <input
-          type="text"
-          placeholder="Ürün ara..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-
+          <input
+            type="text"
+            placeholder="Ürün ara..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="p-2 border rounded ml-2"
+          />
+        </div>
         <DropdownCart
           cart={cart}
           updateQuantity={updateQuantity}

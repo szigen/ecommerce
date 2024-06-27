@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './DropdownCart.css';
+import React, { useState } from "react";
+import Button from "./components/Button";
 
 function DropdownCart({ cart, updateQuantity, removeItem }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,36 +8,56 @@ function DropdownCart({ cart, updateQuantity, removeItem }) {
     setIsOpen(!isOpen);
   };
 
-  const totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalPrice = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   return (
-    <div className="dropdown-cart">
-      <button className="dropdown-toggle" onClick={toggleDropdown}>
+    <div className="relative">
+      <Button primary rounded onClick={toggleDropdown}>
         Sepet ({cart.length})
-      </button>
+      </Button>
       {isOpen && (
-        <div className="dropdown-menu">
-          <ul>
+        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4">
+          <ul className="space-y-4">
             {cart.length === 0 ? (
-              <p>Sepetiniz boş</p>
+              <p className="text-gray-500">Sepetiniz boş</p>
             ) : (
               cart.map((item) => (
-                <li key={item.id}>
-                  <h4>{item.name}</h4>
-                  <p>Fiyat: {item.price} TL</p>
-                  <div className="quantity-controls">
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                <li key={item.id} className="border-b pb-2">
+                  <h4 className="text-xl font-semibold">{item.name}</h4>
+                  <p className="text-gray-600">Fiyat: {item.price} TL</p>
+                  <div className="flex items-center mt-2">
+                    <Button
+                      primary
+                      rounded
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    >
+                      -
+                    </Button>
+                    <span className="mx-2">{item.quantity}</span>
+                    <Button
+                      primary
+                      rounded
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    >
+                      +
+                    </Button>
                   </div>
-                  <button className="remove-button" onClick={() => removeItem(item.id)}>
+                  <Button
+                    className="bg-red-500 text-white px-2 py-1 rounded mt-2"
+                    onClick={() => removeItem(item.id)}
+                  >
                     Kaldır
-                  </button>
+                  </Button>
                 </li>
               ))
             )}
           </ul>
-          <h3>Toplam Fiyat: {totalPrice} TL</h3>
+          <h3 className="text-lg font-semibold mt-4">
+            Toplam Fiyat: {totalPrice} TL
+          </h3>
         </div>
       )}
     </div>
