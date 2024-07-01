@@ -1,30 +1,44 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ProductList from "./ProductList";
 import DropdownCart from "./DropdownCart";
+import Dropdown from "./components/Dropdown";
+import productsData from "./products";
 
 function App() {
   const [category, setCategory] = useState("Tümü");
   const [priceRange, setPriceRange] = useState([0, 500]);
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("unsorted");
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const categories = ["Tümü", "Elektronik", "Moda", "Ev & Yaşam"];
+  const categories = [
+    { value: "Tümü", label: "Tümü" },
+    { value: "Elektronik", label: "Elektronik" },
+    { value: "Moda", label: "Moda" },
+    { value: "Ev & Yaşam", label: "Ev & Yaşam" },
+  ];
 
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  const priceOptions = [
+    { value: "0-500", label: "Tümü" },
+    { value: "0-100", label: "0 - 100 TL" },
+    { value: "100-200", label: "100 - 200 TL" },
+    { value: "200-500", label: "200 - 500 TL" },
+  ];
+
+  const sortOrderOptions = [
+    { value: "unsorted", label: "Sıralama" },
+    { value: "asc", label: "Artan Fiyat" },
+    { value: "desc", label: "Azalan Fiyat" },
+  ];
 
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        await sleep(1);
-        const response = await fetch("/posts");
-        const data = await response.json();
-        setProducts(data.products);
+        await new Promise((resolve) => setTimeout(resolve, 1)); // Sleep function
+        setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -35,7 +49,7 @@ function App() {
     fetchProducts();
   }, []);
 
-  const filterProducts = useCallback(() => {
+  const filteredProducts = useMemo(() => {
     let filtered = products;
 
     if (category !== "Tümü") {
@@ -51,9 +65,11 @@ function App() {
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    filtered = filtered.sort((a, b) => {
-      return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
-    });
+    if (sortOrder !== "unsorted") {
+      filtered = filtered.sort((a, b) => {
+        return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
+      });
+    }
 
     return filtered;
   }, [category, priceRange, sortOrder, searchTerm, products]);
@@ -86,21 +102,39 @@ function App() {
       const existingItem = prevCart.find((item) => item.id === product.id);
 
       if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+        if (existingItem.quantity < product.stock) {
+          return prevCart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        } else {
+          alert("Bu üründen daha fazla stokta yok!");
+          return prevCart;
+        }
       } else {
-        return [...prevCart, { ...product, quantity: 1 }];
+        if (product.stock > 0) {
+          return [...prevCart, { ...product, quantity: 1 }];
+        } else {
+          alert("Bu ürün stokta yok!");
+          return prevCart;
+        }
       }
     });
   };
 
   const updateQuantity = (id, newQuantity) => {
     setCart((prevCart) => {
+      const cartItem = prevCart.find((item) => item.id === id);
+      const product = products.find((prod) => prod.id === id);
+
       if (newQuantity <= 0) {
         return prevCart.filter((item) => item.id !== id);
+      }
+
+      if (newQuantity > product.stock) {
+        alert("Bu üründen daha fazla stokta yok!");
+        return prevCart;
       }
 
       return prevCart.map((item) =>
@@ -113,32 +147,52 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
+  const handleCheckout = async () => {
+    // Mock API call
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      alert("Satın alma işlemi başarılı!");
+
+      setProducts((prevProducts) => {
+        return prevProducts.map((prod) => {
+          const cartItem = cart.find((item) => item.id === prod.id);
+          if (cartItem) {
+            return { ...prod, stock: prod.stock - cartItem.quantity };
+          }
+          return prod;
+        });
+      });
+
+      setCart([]); // Clear cart
+    } catch (error) {
+      console.error("Satın alma işlemi başarısız:", error);
+      alert("Satın alma işlemi başarısız. Lütfen tekrar deneyin.");
+    }
+  };
+
   return (
-    <div className="App p-4 items-center">
+    <div className="App p-4">
       <h1 className="text-3xl font-bold mb-4">E-Ticaret Sitesi</h1>
 
       <div className="filters flex flex-wrap gap-4 mb-4 items-center">
         <div className="flex-grow">
-          <select value={category} onChange={handleCategoryChange} className="p-2 border rounded">
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-
-          <select onChange={handlePriceChange} className="p-2 border rounded ml-2">
-            <option value="0-500">Tümü</option>
-            <option value="0-100">0 - 100 TL</option>
-            <option value="100-200">100 - 200 TL</option>
-            <option value="200-500">200 - 500 TL</option>
-          </select>
-
-          <select value={sortOrder} onChange={handleSortOrderChange} className="p-2 border rounded ml-2">
-            <option value="asc">Artan Fiyat</option>
-            <option value="desc">Azalan Fiyat</option>
-          </select>
-
+          <Dropdown
+            options={categories}
+            value={category}
+            onChange={handleCategoryChange}
+            className="mr-2"
+          />
+          <Dropdown
+            options={priceOptions}
+            onChange={handlePriceChange}
+            className="ml-2"
+          />
+          <Dropdown
+            options={sortOrderOptions}
+            value={sortOrder}
+            onChange={handleSortOrderChange}
+            className="ml-2"
+          />
           <input
             type="text"
             placeholder="Ürün ara..."
@@ -151,13 +205,14 @@ function App() {
           cart={cart}
           updateQuantity={updateQuantity}
           removeItem={removeItem}
+          handleCheckout={handleCheckout} // Pass handleCheckout to DropdownCart
         />
       </div>
 
       {isLoading ? (
         <p>Loading products...</p>
       ) : (
-        <ProductList products={filterProducts()} addToCart={addToCart} />
+        <ProductList products={filteredProducts} addToCart={addToCart} />
       )}
     </div>
   );

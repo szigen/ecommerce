@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Button from "./components/Button";
+import "./DropdownCart.css";
 
-function DropdownCart({ cart, updateQuantity, removeItem }) {
+function DropdownCart({ cart, updateQuantity, removeItem, handleCheckout }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -14,50 +15,48 @@ function DropdownCart({ cart, updateQuantity, removeItem }) {
   );
 
   return (
-    <div className="relative">
-      <Button primary rounded onClick={toggleDropdown}>
+    <div className="dropdown-cart">
+      <button className="dropdown-toggle" onClick={toggleDropdown}>
         Sepet ({cart.length})
-      </Button>
+      </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4">
-          <ul className="space-y-4">
+        <div className="dropdown-menu">
+          <ul>
             {cart.length === 0 ? (
-              <p className="text-gray-500">Sepetiniz boş</p>
+              <p>Sepetiniz boş</p>
             ) : (
               cart.map((item) => (
-                <li key={item.id} className="border-b pb-2">
-                  <h4 className="text-xl font-semibold">{item.name}</h4>
-                  <p className="text-gray-600">Fiyat: {item.price} TL</p>
-                  <div className="flex items-center mt-2">
+                <li key={item.id}>
+                  <h4>{item.name}</h4>
+                  <p>Fiyat: {item.price} TL</p>
+                  <div className="quantity-controls">
                     <Button
-                      primary
-                      rounded
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      secondary
                     >
                       -
                     </Button>
-                    <span className="mx-2">{item.quantity}</span>
+                    <span>{item.quantity}</span>
                     <Button
-                      primary
-                      rounded
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      secondary
                     >
                       +
                     </Button>
                   </div>
-                  <Button
-                    className="bg-red-500 text-white px-2 py-1 rounded mt-2"
-                    onClick={() => removeItem(item.id)}
-                  >
+                  <Button onClick={() => removeItem(item.id)} danger>
                     Kaldır
                   </Button>
                 </li>
               ))
             )}
           </ul>
-          <h3 className="text-lg font-semibold mt-4">
-            Toplam Fiyat: {totalPrice} TL
-          </h3>
+          <h3>Toplam Fiyat: {totalPrice} TL</h3>
+          {cart.length > 0 && (
+            <Button onClick={handleCheckout} success rounded>
+              Satın Al
+            </Button>
+          )}
         </div>
       )}
     </div>
