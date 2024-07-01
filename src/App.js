@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import ProductList from "./ProductList";
 import DropdownCart from "./DropdownCart";
 import Dropdown from "./components/Dropdown";
-import productsData from "./products";
+import { database } from "./Firebase/firebase";
+import { onValue, ref, update } from "firebase/database";
 
 function App() {
   const [category, setCategory] = useState("Tümü");
@@ -34,19 +35,18 @@ function App() {
   ];
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1)); // Sleep function
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      } finally {
+    const query = ref(database, "products");
+    return onValue(query, (snapshot) => {
+      const data = snapshot.val();
+
+      //convert data to array
+
+      console.log(data);
+      if (snapshot.exists()) {
+        setProducts(Object.values(data));
         setIsLoading(false);
       }
-    };
-
-    fetchProducts();
+    });
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -125,7 +125,6 @@ function App() {
 
   const updateQuantity = (id, newQuantity) => {
     setCart((prevCart) => {
-      const cartItem = prevCart.find((item) => item.id === id);
       const product = products.find((prod) => prod.id === id);
 
       if (newQuantity <= 0) {
@@ -148,20 +147,27 @@ function App() {
   };
 
   const handleCheckout = async () => {
-    // Mock API call
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
       alert("Satın alma işlemi başarılı!");
 
+      const updates = {};
       setProducts((prevProducts) => {
         return prevProducts.map((prod) => {
           const cartItem = cart.find((item) => item.id === prod.id);
           if (cartItem) {
-            return { ...prod, stock: prod.stock - cartItem.quantity };
+            const newStock = prod.stock - cartItem.quantity;
+            console.log("newStock", newStock);
+            updates[`products/${prod.id}/stock`] = newStock; // Prepare update for Firebase
+            return { ...prod, stock: newStock };
           }
           return prod;
         });
       });
+
+      // Update Firebase database with new stock values
+      await update(ref(database), updates);
+      console.log("updates", updates);
 
       setCart([]); // Clear cart
     } catch (error) {
